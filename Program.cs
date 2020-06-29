@@ -14,7 +14,12 @@ namespace SaveRoomCP
         {
             try
             {
-                var serialPort = _serialPortManager.EstablishSerialPortCommunication(out quitProgram);
+                var serialPort = _serialPortManager.EstablishSerialPortCommunication(out quitProgram) ?? throw new Exception("No serial port available");
+
+                if (quitProgram) 
+                {
+                    return;
+                }
 
                 _soundManager = new SoundManager();
                 _soundManager.SearchForSongs(out quitProgram);

@@ -9,7 +9,7 @@ namespace SaveRoomCP.SoundSystem
 {
     public class SoundManager
     {
-        private readonly string MUSIC_BASE_PATH =  $"{new DirectoryInfo(Assembly.GetExecutingAssembly().Location).Parent.FullName}/SaveRoomMusic";
+        private readonly string MUSIC_BASE_PATH = $"{new DirectoryInfo(Assembly.GetExecutingAssembly().Location).Parent.FullName}/SaveRoomMusic";
         private IPlayer _player;
         private List<string> _saveRoomSongs = new List<string>();
         private List<string> _playedSongs = new List<string>();
@@ -42,16 +42,21 @@ namespace SaveRoomCP.SoundSystem
             quitProgram = false;
         }
 
-        private Tuple<string, int> SelectRandomSong() 
+        private Tuple<string, int> SelectRandomSong()
         {
+            if (_saveRoomSongs.Count == 0)
+            {
+                ReloadSongs();
+            }
             var randomIndex = new Random((int)DateTime.Now.ToFileTime()).Next(0, (_saveRoomSongs.Count - 1));
             return new Tuple<string, int>(_saveRoomSongs[randomIndex], randomIndex);
         }
 
-        public string LoadSong() 
+        public string LoadSong()
         {
-            var song = SelectRandomSong().Item1;
-            var songIndex = SelectRandomSong().Item2;
+            var tuple = SelectRandomSong();
+            var song = tuple.Item1;
+            var songIndex = tuple.Item2;
 
             _player.LoadSong(song);
             MarkSongAsPlayed(song, songIndex);
@@ -59,7 +64,7 @@ namespace SaveRoomCP.SoundSystem
             return song;
         }
 
-        private void MarkSongAsPlayed(string song, int songIndex) 
+        private void MarkSongAsPlayed(string song, int songIndex)
         {
             _playedSongs.Add(song);
             _saveRoomSongs.RemoveAt(songIndex);
@@ -72,13 +77,13 @@ namespace SaveRoomCP.SoundSystem
             return _saveRoomSongs.Count > 0;
         }
 
-        public bool PlayMusic(string song, out bool isFirstPass) 
+        public bool PlayMusic(string song, out bool isFirstPass)
         {
             isFirstPass = true;
 
             var task = _player.Play(song);
             var hasFinished = task.IsCompleted;
-            
+
             if (hasFinished)
             {
                 isFirstPass = false;
@@ -88,7 +93,7 @@ namespace SaveRoomCP.SoundSystem
         }
 
 
-        public void StopMusic(out bool isFirstPass) 
+        public void StopMusic(out bool isFirstPass)
         {
             _player.Stop();
             isFirstPass = true;

@@ -9,7 +9,7 @@ namespace SaveRoomCP.SoundSystem
     {
         private readonly string MusicBasePath = $"{Environment.CurrentDirectory}/SaveRoomMusic";
 
-        private List<Process> _processes = new List<Process>();
+        private Process _process;
 
         public Task LoadSong(string song)
         {
@@ -18,21 +18,19 @@ namespace SaveRoomCP.SoundSystem
 
         public Task Play(string fileName)
         {
-            _processes.Add(StartAplayPlayback(fileName));
+            _process = (StartAplayPlayback(fileName));
             return Task.CompletedTask;
         }
 
         public Task Stop()
         {
-           foreach (var process in _processes) 
-           {
-            if (process != null)
+            if (_process != null)
             {
-                process.Kill();
-                process.Dispose();
+                _process.Kill();
+                _process.Dispose();
+                _process = null;
             }
-           }
-            
+
             return Task.CompletedTask;
         }
 
@@ -43,12 +41,12 @@ namespace SaveRoomCP.SoundSystem
             {
                 StartInfo = new ProcessStartInfo
                 {
-                FileName = "/bin/bash",
-                Arguments = $"-c \"aplay {escapedArgs}\"",
-                RedirectStandardOutput = true,
-                RedirectStandardInput = true,
-                UseShellExecute = false,
-                CreateNoWindow = true,
+                    FileName = "/bin/bash",
+                    Arguments = $"-c \"aplay {escapedArgs}\"",
+                    RedirectStandardOutput = true,
+                    RedirectStandardInput = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
                 }
             };
             process.Start();
