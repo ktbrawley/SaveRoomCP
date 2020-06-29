@@ -13,7 +13,6 @@ namespace SaveRoomCP
     {
         private static readonly int baudRate = 9600;
         private static readonly int photoResitorThreshold = 300;
-        private static readonly int photoResistorLimit = 200;
 
         /// <summary>
         /// Detect available serial ports and news up a connection to parse data
