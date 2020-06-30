@@ -27,20 +27,22 @@ namespace SaveRoomCP
             string[] ports = SerialPort.GetPortNames();
             Console.WriteLine("The following serial ports were found:");
 
-            // Display each port name to the console.
-            if (ports.Length < 2) 
-            {
-                quitProgram = true;
-                return null;
-            }
-            Console.WriteLine();
+
+            // // Display each port name to the console.
+            // if (ports.Length < 2) 
+            // {
+            //     quitProgram = true;
+            //     return null;
+            // }
+            // Console.WriteLine();
 
             // Create a new SerialPort on port COM? or /dev/ttyACM?
-            serialPort = new SerialPort(ports[1], baudRate);
+            serialPort = new SerialPort(ports[0], baudRate);
             // Set the read/write timeouts
             serialPort.ReadTimeout = 1500;
             serialPort.WriteTimeout = 1500;
             serialPort.Open();
+            Thread.Sleep(500);
             Console.WriteLine();
 
             quitProgram = !PortIsReceivingData(serialPort);

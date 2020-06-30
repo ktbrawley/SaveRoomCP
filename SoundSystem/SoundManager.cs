@@ -9,7 +9,7 @@ namespace SaveRoomCP.SoundSystem
 {
     public class SoundManager
     {
-        private readonly string MUSIC_BASE_PATH = $"{new DirectoryInfo(Assembly.GetExecutingAssembly().Location).Parent.FullName}/SaveRoomMusic";
+        private readonly string MUSIC_BASE_PATH = $"{new DirectoryInfo(Assembly.GetExecutingAssembly().Location).Parent.FullName}\\SaveRoomMusic";
         private IPlayer _player;
         private List<string> _saveRoomSongs = new List<string>();
         private List<string> _playedSongs = new List<string>();

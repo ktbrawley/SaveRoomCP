@@ -10,6 +10,7 @@ using AudioSwitcher.AudioApi.CoreAudio;
 #endif
 using System.Threading;
 using SaveRoomCP.SoundSystem;
+using System.Runtime.InteropServices;
 
 namespace SaveRoomCP.SoundSystem
 {
@@ -19,20 +20,11 @@ namespace SaveRoomCP.SoundSystem
         private readonly int STARTING_VOL;
         private readonly int TIMEOUT_DELTA = 125;
 
-        #if WINSYS
-        private SoundPlayer _player;
-        private CoreAudioDevice _defaultPlaybackDevice;
-        #endif
-       
-
+        [DllImport("winmm.dll")]
+        private static extern long mciSendString(string command, StringBuilder stringReturn, int retunLength, IntPtr hwndCallback);
         public WindowsPlayer(string MUSIC_PATH)
         {   
-            this.MUSIC_PATH = MUSIC_PATH;
-            #if WINSYS
-            _player = new SoundPlayer();
-            _defaultPlaybackDevice = new CoreAudioController()._defaultPlaybackDevice;
-            STARTING_VOL = (int)_defaultPlaybackDevice.Volume;
-            #endif
+           this.MUSIC_PATH = MUSIC_PATH;
         }
 
         /// <summary>
@@ -41,14 +33,8 @@ namespace SaveRoomCP.SoundSystem
         /// <returns>string</returns>
         public Task LoadSong(string song)
         {
-            var message = $"Playing {song.Replace($"{MUSIC_PATH}/SaveRoomMusic", "")}...";
 
-            #if WINSYS
-            _player.SoundLocation = song;
-            _player.Load();
-            #endif
-
-            return Task.FromResult(message);
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -58,25 +44,14 @@ namespace SaveRoomCP.SoundSystem
         /// <param name="isFirstPass"></param>
         public Task Play(string fileName)
         {
-            #if WINSYS
-            if (_player.IsLoadCompleted)
-            {
-                _defaultPlaybackDevice.Volume = 0;
-                _player.Play();
-
-                for (int i = 0; i < (STARTING_VOL + 1); i++)
-                {
-                    _defaultPlaybackDevice.Volume = i;
-                    Thread.Sleep(timeoutDelta);
-                }
-
-                
-                Console.WriteLine();
-                Console.WriteLine(fileName);
-                Console.WriteLine();
-            }
-            #endif
-
+             var escapedArgs = 
+             fileName
+             .Replace("/", @"\")
+             .Replace(@"\\", @"\");
+            Console.WriteLine(escapedArgs);
+            ExecuteMsiCommand("close all");
+            ExecuteMsiCommand($"open {fileName} Alias player");
+            ExecuteMsiCommand($"play player from 0");
             return Task.CompletedTask;
         }
 
@@ -86,15 +61,7 @@ namespace SaveRoomCP.SoundSystem
         /// <param name="isFirstPass"></param>
         public Task Stop()
         {
-            #if WINSYS
-            for (int i = (int)_defaultPlaybackDevice.Volume; i > -1; i--)
-            {
-                _defaultPlaybackDevice.Volume = i;
-                Thread.Sleep(timeoutDelta);
-            }
-            _player.Stop();
-            #endif
-
+            ExecuteMsiCommand($"Stop player");
             Console.WriteLine();
             Console.WriteLine("Stopping Music...");
             Console.WriteLine();
@@ -104,12 +71,17 @@ namespace SaveRoomCP.SoundSystem
 
         public void ResetVolume()
         {
-            #if WINSYS
-            for (int i = 0; i < (STARTING_VOL + 1); i++)
+            
+        }
+
+        private void ExecuteMsiCommand(string commandString)
+        {
+            var result = mciSendString(commandString, null, 0, IntPtr.Zero);
+
+            if(result != 0)
             {
-                _defaultPlaybackDevice.Volume = i;
+                throw new Exception($"Error executing MSI command. Error code: {result}");
             }
-            #endif
         }
     }
 }
