@@ -20,34 +20,37 @@ namespace SaveRoomCP
         /// <returns>SerialPort</returns>
         public SerialPort EstablishSerialPortCommunication(out bool quitProgram)
         {
-            //Define serial port instance
             SerialPort serialPort = new SerialPort();
 
-            // Get a list of serial port names.
             string[] ports = SerialPort.GetPortNames();
             Console.WriteLine("The following serial ports were found:");
 
+            var targetPorts = ports.Where(p => p != "COM1" || p != "/dev/ttyS0").ToArray();
+            foreach ( var port in targetPorts)
+            {
+                Console.WriteLine(port);
+            }
+     
+            if (targetPorts.Length < 1) 
+            {
+                quitProgram = true;
+                return null;
+            }
+            else 
+            {
+                // Create a new SerialPort on port COM? or /dev/ttyACM?
+                Console.WriteLine();
+                serialPort = new SerialPort(targetPorts[0], baudRate);
 
-            // // Display each port name to the console.
-            // if (ports.Length < 2) 
-            // {
-            //     quitProgram = true;
-            //     return null;
-            // }
-            // Console.WriteLine();
+                serialPort.ReadTimeout = 1500;
+                serialPort.WriteTimeout = 1500;
+                serialPort.Open();
+                Console.WriteLine();
 
-            // Create a new SerialPort on port COM? or /dev/ttyACM?
-            serialPort = new SerialPort(ports[0], baudRate);
-            // Set the read/write timeouts
-            serialPort.ReadTimeout = 1500;
-            serialPort.WriteTimeout = 1500;
-            serialPort.Open();
-            Thread.Sleep(500);
-            Console.WriteLine();
+                quitProgram = !PortIsReceivingData(serialPort);
 
-            quitProgram = !PortIsReceivingData(serialPort);
-
-            return serialPort;
+                return serialPort;
+            }
         }
 
         /// <summary>
