@@ -58,7 +58,6 @@ namespace SaveRoomCP.SoundSystem
             var song = tuple.Item1;
             var songIndex = tuple.Item2;
 
-            _player.LoadSong(song);
             MarkSongAsPlayed(song, songIndex);
 
             return song;

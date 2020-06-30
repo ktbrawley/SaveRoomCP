@@ -17,8 +17,6 @@ namespace SaveRoomCP.SoundSystem
     public class WindowsPlayer : IPlayer
     {
         private readonly string MUSIC_PATH;
-        private readonly int STARTING_VOL;
-        private readonly int TIMEOUT_DELTA = 125;
 
         [DllImport("winmm.dll")]
         private static extern long mciSendString(string command, StringBuilder stringReturn, int retunLength, IntPtr hwndCallback);
@@ -27,15 +25,6 @@ namespace SaveRoomCP.SoundSystem
            this.MUSIC_PATH = MUSIC_PATH;
         }
 
-        /// <summary>
-        /// Returns the file path to a randomly selected song
-        /// </summary>
-        /// <returns>string</returns>
-        public Task LoadSong(string song)
-        {
-
-            return Task.CompletedTask;
-        }
 
         /// <summary>
         /// Starts music stream
@@ -65,13 +54,7 @@ namespace SaveRoomCP.SoundSystem
             Console.WriteLine();
             Console.WriteLine("Stopping Music...");
             Console.WriteLine();
-            ResetVolume();
             return Task.CompletedTask;
-        }
-
-        public void ResetVolume()
-        {
-            
         }
 
         private void ExecuteMsiCommand(string commandString)

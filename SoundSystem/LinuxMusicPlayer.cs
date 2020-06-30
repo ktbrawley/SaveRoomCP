@@ -11,11 +11,6 @@ namespace SaveRoomCP.SoundSystem
 
         private Process _process;
 
-        public Task LoadSong(string song)
-        {
-            return Task.CompletedTask;
-        }
-
         public Task Play(string fileName)
         {
             _process = (StartAplayPlayback(fileName));
