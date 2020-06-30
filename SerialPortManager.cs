@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Ports;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,22 +22,20 @@ namespace SaveRoomCP
         public SerialPort EstablishSerialPortCommunication(out bool quitProgram)
         {
             SerialPort serialPort = new SerialPort();
+            string[] targetPorts = FilterPorts(SerialPort.GetPortNames());
 
-            string[] ports = SerialPort.GetPortNames();
             Console.WriteLine("The following serial ports were found:");
-
-            var targetPorts = ports.Where(p => p != "COM1" || p != "/dev/ttyS0").ToArray();
-            foreach ( var port in targetPorts)
+            foreach (var port in targetPorts)
             {
                 Console.WriteLine(port);
             }
-     
-            if (targetPorts.Length < 1) 
+
+            if (targetPorts.Length < 1)
             {
                 quitProgram = true;
                 return null;
             }
-            else 
+            else
             {
                 // Create a new SerialPort on port COM? or /dev/ttyACM?
                 Console.WriteLine();
@@ -51,6 +50,24 @@ namespace SaveRoomCP
 
                 return serialPort;
             }
+        }
+        /// <summary>
+        /// Filter the desired serial ports based on the Operating System in use
+        /// </summary>
+        private string[] FilterPorts(string[] ports)
+        {
+            string[] targetPorts = { };
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                targetPorts = ports.Where(p => !p.Contains("COM1")).ToArray();
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                targetPorts = ports.Where(p => p.Contains("ttyACM")).ToArray();
+            }
+
+            return targetPorts;
         }
 
         /// <summary>
