@@ -10,18 +10,18 @@ namespace SaveRoomCP.SoundSystem
     {
         private readonly string MusicBasePath = $"{Environment.CurrentDirectory}/SaveRoomMusic";
         private const int TIMEOUT_DELTA = 50;
-
         private Process _process;
+        public Process CurrentProcess { get { return _process; } }
 
         public Task Play(string fileName)
         {
             _process = (StartAplayPlayback(fileName));
             for (int i = 0; i < 100; i++)
             {
-                AdjustVolume(true);
                 Thread.Sleep(TIMEOUT_DELTA);
+                AdjustVolume(true);
             }
-            
+
             return Task.CompletedTask;
         }
 
@@ -62,6 +62,7 @@ namespace SaveRoomCP.SoundSystem
                 }
             };
             process.Start();
+            process.EnableRaisingEvents = true;
             return process;
         }
 
@@ -73,7 +74,7 @@ namespace SaveRoomCP.SoundSystem
                 StartInfo = new ProcessStartInfo
                 {
                     FileName = "/bin/bash",
-                    Arguments = $"-c \"amixer -q sset Master {volumeDelta}",
+                    Arguments = $"-c \"amixer -q sset Headphone {volumeDelta}",
                     RedirectStandardOutput = true,
                     RedirectStandardInput = true,
                     UseShellExecute = false,

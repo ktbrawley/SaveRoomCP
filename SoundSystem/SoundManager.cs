@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -24,6 +25,11 @@ namespace SaveRoomCP.SoundSystem
             {
                 _player = new LinuxMusicPlayer();
             }
+        }
+
+        public Process CurrentProcess()
+        {
+            return _player.CurrentProcess;
         }
 
         public void SearchForSongs(out bool quitProgram)

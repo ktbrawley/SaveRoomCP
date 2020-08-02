@@ -11,6 +11,7 @@ using AudioSwitcher.AudioApi.CoreAudio;
 using System.Threading;
 using SaveRoomCP.SoundSystem;
 using System.Runtime.InteropServices;
+using System.Diagnostics;
 
 namespace SaveRoomCP.SoundSystem
 {
@@ -18,13 +19,14 @@ namespace SaveRoomCP.SoundSystem
     {
         private readonly string MUSIC_PATH;
 
+        public Process CurrentProcess => throw new NotImplementedException();
+
         [DllImport("winmm.dll")]
         private static extern long mciSendString(string command, StringBuilder stringReturn, int retunLength, IntPtr hwndCallback);
         public WindowsPlayer(string MUSIC_PATH)
-        {   
-           this.MUSIC_PATH = MUSIC_PATH;
+        {
+            this.MUSIC_PATH = MUSIC_PATH;
         }
-
 
         /// <summary>
         /// Starts music stream
@@ -33,10 +35,10 @@ namespace SaveRoomCP.SoundSystem
         /// <param name="isFirstPass"></param>
         public Task Play(string fileName)
         {
-             var escapedArgs = 
-             fileName
-             .Replace("/", @"\")
-             .Replace(@"\\", @"\");
+            var escapedArgs =
+            fileName
+            .Replace("/", @"\")
+            .Replace(@"\\", @"\");
             Console.WriteLine(escapedArgs);
             ExecuteMsiCommand("close all");
             ExecuteMsiCommand($"open {fileName} Alias player");
@@ -61,7 +63,7 @@ namespace SaveRoomCP.SoundSystem
         {
             var result = mciSendString(commandString, null, 0, IntPtr.Zero);
 
-            if(result != 0)
+            if (result != 0)
             {
                 throw new Exception($"Error executing MSI command. Error code: {result}");
             }
