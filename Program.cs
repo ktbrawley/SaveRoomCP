@@ -32,7 +32,9 @@ namespace SaveRoomCP
                     {
                         var song = _soundManager.LoadSong();
                         _soundManager.PlayMusic(song, out isFirstPass);
-
+                    }
+                    else if (isLightOn && !isFirstPass)
+                    {
                         if (_soundManager.CurrentProcess().HasExited)
                         {
                             isFirstPass = true;
@@ -40,7 +42,7 @@ namespace SaveRoomCP
                     }
                     else if (!isFirstPass && !isLightOn)
                     {
-                        StopMusic(null, null);
+                        _soundManager.StopMusic(out isFirstPass);
                     }
                 }
                 _soundManager.StopMusic(out isFirstPass);
@@ -51,10 +53,6 @@ namespace SaveRoomCP
             {
                 Console.WriteLine($"Error establishing communication with port: {ex.Message}");
             }
-        }
-        public static void StopMusic(object sender, EventArgs e)
-        {
-            _soundManager.StopMusic(out isFirstPass);
         }
     }
 }
