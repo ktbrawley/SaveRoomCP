@@ -16,11 +16,6 @@ namespace SaveRoomCP.SoundSystem
         public Task Play(string fileName)
         {
             _process = (StartAplayPlayback(fileName));
-            for (int i = 0; i < 100; i++)
-            {
-                Thread.Sleep(TIMEOUT_DELTA);
-                AdjustVolume(true);
-            }
 
             return Task.CompletedTask;
         }
@@ -31,11 +26,6 @@ namespace SaveRoomCP.SoundSystem
             Console.WriteLine("Stopping Music...");
             Console.WriteLine();
 
-            for (int i = 100; i > 0; i--)
-            {
-                AdjustVolume(false);
-                Thread.Sleep(TIMEOUT_DELTA);
-            }
             if (_process != null)
             {
                 _process.Kill();
