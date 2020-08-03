@@ -32,13 +32,7 @@ namespace SaveRoomCP
                     {
                         var song = _soundManager.LoadSong();
                         _soundManager.PlayMusic(song, out isFirstPass);
-                    }
-                    else if (isLightOn && !isFirstPass)
-                    {
-                        if (_soundManager.CurrentProcess().HasExited)
-                        {
-                            isFirstPass = true;
-                        }
+                        isFirstPass = _soundManager.CurrentProcess().HasExited;
                     }
                     else if (!isFirstPass && !isLightOn)
                     {
