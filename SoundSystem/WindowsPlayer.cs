@@ -1,15 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-#if WINSYS
-using System.Media;
-using AudioSwitcher.AudioApi.CoreAudio;
-#endif
-using System.Threading;
-using SaveRoomCP.SoundSystem;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 
@@ -17,16 +8,10 @@ namespace SaveRoomCP.SoundSystem
 {
     public class WindowsPlayer : IPlayer
     {
-        private readonly string MUSIC_PATH;
-
         public Process CurrentProcess => throw new NotImplementedException();
 
         [DllImport("winmm.dll")]
         private static extern long mciSendString(string command, StringBuilder stringReturn, int retunLength, IntPtr hwndCallback);
-        public WindowsPlayer(string MUSIC_PATH)
-        {
-            this.MUSIC_PATH = MUSIC_PATH;
-        }
 
         /// <summary>
         /// Starts music stream

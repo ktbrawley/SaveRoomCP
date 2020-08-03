@@ -19,7 +19,7 @@ namespace SaveRoomCP.SoundSystem
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                _player = new WindowsPlayer(MUSIC_BASE_PATH);
+                _player = new WindowsPlayer();
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {

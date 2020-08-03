@@ -8,7 +8,6 @@ namespace SaveRoomCP.SoundSystem
 {
     public class LinuxMusicPlayer : IPlayer
     {
-        private readonly string MusicBasePath = $"{Environment.CurrentDirectory}/SaveRoomMusic";
         private const int TIMEOUT_DELTA = 50;
         private Process _process;
         public Process CurrentProcess { get { return _process; } }
