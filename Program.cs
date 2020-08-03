@@ -28,11 +28,19 @@ namespace SaveRoomCP
                 {
                     var isLightOn = _serialPortManager.IsTheLightOn(serialPort);
 
-                    if (isLightOn && isFirstPass)
+                    if (isLightOn)
                     {
-                        var song = _soundManager.LoadSong();
-                        _soundManager.PlayMusic(song, out isFirstPass);
-                        isFirstPass = _soundManager.CurrentProcess().HasExited;
+                        switch (isFirstPass)
+                        {
+                            case true:
+                                var song = _soundManager.LoadSong();
+                                _soundManager.PlayMusic(song, out isFirstPass);
+                                break;
+                            case false:
+                                isFirstPass = _soundManager.CurrentProcess().HasExited;
+                                break;
+                        }
+
                     }
                     else if (!isFirstPass && !isLightOn)
                     {
