@@ -40,15 +40,13 @@ namespace SaveRoomCP
                                 isFirstPass = _soundManager.CurrentProcess().HasExited;
                                 break;
                         }
-
                     }
-                    else if (!isFirstPass && !isLightOn)
+                    else
                     {
                         _soundManager.StopMusic(out isFirstPass);
                     }
                 }
                 _soundManager.StopMusic(out isFirstPass);
-
                 return;
             }
             catch (Exception ex)
