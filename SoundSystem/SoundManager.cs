@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using SaveRoomCP.Audio;
 
 namespace SaveRoomCP.SoundSystem
 {
@@ -12,8 +13,10 @@ namespace SaveRoomCP.SoundSystem
     {
         private readonly string MUSIC_BASE_PATH = $"{new DirectoryInfo(Assembly.GetExecutingAssembly().Location).Parent.FullName}/SaveRoomMusic";
         private IPlayer _player;
+    
         private List<string> _saveRoomSongs = new List<string>();
         private List<string> _playedSongs = new List<string>();
+
 
         public SoundManager()
         {
@@ -35,6 +38,7 @@ namespace SaveRoomCP.SoundSystem
         public void SearchForSongs(out bool quitProgram)
         {
             _saveRoomSongs = Directory.GetFiles(MUSIC_BASE_PATH).ToList();
+
             if (_saveRoomSongs.Count <= 0)
             {
                 Console.WriteLine("No songs to play");

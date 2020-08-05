@@ -1,4 +1,7 @@
 ﻿using System;
+using System.IO;
+using System.Reflection;
+using SaveRoomCP.Audio;
 using SaveRoomCP.SoundSystem;
 
 namespace SaveRoomCP
@@ -8,21 +11,23 @@ namespace SaveRoomCP
         private static bool quitProgram = false;
         private static bool isFirstPass = true;
         private static SerialPortManager _serialPortManager = new SerialPortManager();
-        private static SoundManager _soundManager;
+        private static SoundManager _soundManager = new SoundManager();
+        private static AudioSyncManager _audioSyncManager = new AudioSyncManager();
 
-        private static void Main(string[] args)
+        private static readonly string playlistUrl = $"https://www.youtube.com/watch?v=RjHzc5NAVrc&list=PLSL0-UtF7g_qN9j-1WZi2fSD3Tfprjifi";
+
+        private static async System.Threading.Tasks.Task Main(string[] args)
         {
             try
             {
                 var serialPort = _serialPortManager.EstablishSerialPortCommunication(out quitProgram) ?? throw new Exception("No serial port available");
 
+                await _audioSyncManager.CheckNewSongsFromYouTubePlaylist(playlistUrl);
+
                 if (quitProgram)
                 {
                     return;
                 }
-
-                _soundManager = new SoundManager();
-                _soundManager.SearchForSongs(out quitProgram);
 
                 while (!quitProgram)
                 {
@@ -48,6 +53,8 @@ namespace SaveRoomCP
                 }
                 _soundManager.StopMusic(out isFirstPass);
                 return;
+
+
             }
             catch (Exception ex)
             {

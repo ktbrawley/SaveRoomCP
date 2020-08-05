@@ -6,8 +6,11 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.IO.Ports" Version="5.0.0-preview.6.20305.6"/>
+    <PackageReference Include="MediaToolkit.NetCore" Version="0.2.1-preview"/>
+    <PackageReference Include="VideoLibrary" Version="3.0.6"/>
+    <PackageReference Include="SoxSharp" Version="1.3.5"/>
   </ItemGroup>
   <ItemGroup>
-    <None Update="SaveRoomMusic\**" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="SaveRoomMusic\**" CopyToOutputDirectory="PreserveNewest"/>
   </ItemGroup>
 </Project>
