@@ -108,6 +108,11 @@ namespace SaveRoomCP
 
             await ExtractYoutubeVideoInfoFromPlaylist(playlistId);
 
+            if (!Directory.Exists(MUSIC_BASE_PATH))
+            {
+                Directory.CreateDirectory(MUSIC_BASE_PATH);
+            }
+
             var existingVideoCount = Directory.GetFiles(MUSIC_BASE_PATH).Length;
 
             if (_videoIds.Count > 0 && _videoIds.Count > existingVideoCount)
