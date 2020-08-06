@@ -13,7 +13,7 @@ namespace SaveRoomCP.SoundSystem
     {
         private readonly string MUSIC_BASE_PATH = $"{new DirectoryInfo(Assembly.GetExecutingAssembly().Location).Parent.FullName}/SaveRoomMusic";
         private IPlayer _player;
-    
+
         private List<string> _saveRoomSongs = new List<string>();
         private List<string> _playedSongs = new List<string>();
 
@@ -82,7 +82,7 @@ namespace SaveRoomCP.SoundSystem
 
         private bool ReloadSongs()
         {
-            _saveRoomSongs = Directory.GetFiles(MUSIC_BASE_PATH).ToList();
+            _saveRoomSongs = Directory.GetFiles(MUSIC_BASE_PATH, "*.wav").ToList();
             return _saveRoomSongs.Count > 0;
         }
 
