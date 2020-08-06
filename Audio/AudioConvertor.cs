@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -48,22 +49,11 @@ namespace SaveRoomCP.Audio
 
         public static void RemoveVideoFiles(string outputDirPath)
         {
-            var cmd = $"cd {outputDirPath} && rm -rf *.mp4";
-            var espacedArgs = cmd.Replace("\"", "\\\"");
-
-            var process = new Process
+            var files = Directory.GetFiles(outputDirPath, "*.*").Where(f => f.EndsWith(".mp4"));
+            foreach (var file in files)
             {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = "/bin/bash",
-                    Arguments = $"-c \"{espacedArgs}\"",
-                    RedirectStandardOutput = true,
-                    RedirectStandardInput = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                }
-            };
-            process.Start();
+                File.Delete(file);
+            }
         }
     }
 }
