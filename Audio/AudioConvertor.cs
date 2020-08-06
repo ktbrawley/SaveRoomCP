@@ -28,7 +28,7 @@ namespace SaveRoomCP.Audio
 
         public static void ConvertBatchToWav(string outputDirPath)
         {
-            var cmd = $"cd {outputDirPath} && for file in *.mp4; do ffmpeg -i ${{file}} ${{file/%mp4/wav}}; done && rm -rf *.mp4";
+            var cmd = $"cd {outputDirPath} && for file in *.mp4; do ffmpeg -i ${{file}} ${{file/%mp4/wav}}; done";
             var espacedArgs = cmd.Replace("\"", "\\\"");
 
             var process = new Process
@@ -38,6 +38,27 @@ namespace SaveRoomCP.Audio
                     FileName = "/bin/bash",
                     Arguments = $"-c \"{espacedArgs}\"",
                     RedirectStandardOutput = true,
+                    RedirectStandardInput = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                }
+            };
+            process.Start();
+        }
+
+        public static void RemoveVideoFiles(string outputDirPath)
+        {
+            var cmd = $"cd {outputDirPath} && rm -rf *.mp4";
+            var espacedArgs = cmd.Replace("\"", "\\\"");
+
+            var process = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = "/bin/bash",
+                    Arguments = $"-c \"{espacedArgs}\"",
+                    RedirectStandardOutput = true,
+                    RedirectStandardInput = true,
                     UseShellExecute = false,
                     CreateNoWindow = true
                 }

@@ -43,6 +43,7 @@ namespace SaveRoomCP.Audio
                 }
             }
             AudioConvertor.ConvertBatchToWav(outputDir);
+            AudioConvertor.RemoveVideoFiles(outputDir);
             return true;
         }
 
@@ -50,6 +51,7 @@ namespace SaveRoomCP.Audio
         {
             return fileName
                 .Replace(" ", "_")
+                .Replace(":", "")
                 .Replace("\"", "")
                 .Replace("(", "")
                 .Replace("`", "")
