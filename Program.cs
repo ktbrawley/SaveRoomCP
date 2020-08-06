@@ -25,22 +25,20 @@ namespace SaveRoomCP
 
         private static readonly List<string> _videoIds = new List<string> { };
 
+        private static readonly string MUSIC_BASE_PATH = $"{new DirectoryInfo(Assembly.GetExecutingAssembly().Location).Parent.FullName}/SaveRoomMusic";
+
         private static async Task Main(string[] args)
         {
             try
             {
                 var serialPort = _serialPortManager.EstablishSerialPortCommunication(out quitProgram) ?? throw new Exception("No serial port available");
 
-                LoadConfiguration();
-                await ExtractYoutubeVideoInfoFromPlaylist(playlistId);
-
-                if (_videoIds.Count > 0)
-                    await ((ISyncManager)_audioSyncManager).DownloadNewSongsAsync(_videoIds);
-
                 if (quitProgram)
                 {
                     return;
                 }
+
+                await CheckForNewSongs();
 
                 while (!quitProgram)
                 {
@@ -102,6 +100,18 @@ namespace SaveRoomCP
                 // Console.WriteLine("{0} ({1})", playlistItem.Snippet.Title, playlistItem.Snippet.ResourceId.VideoId);
                 _videoIds.Add(playlistItem.Snippet.ResourceId.VideoId);
             }
+        }
+
+        private static async Task CheckForNewSongs()
+        {
+            LoadConfiguration();
+
+            await ExtractYoutubeVideoInfoFromPlaylist(playlistId);
+
+            var existingVideoCount = Directory.GetFiles(MUSIC_BASE_PATH).Length;
+
+            if (_videoIds.Count > 0 && _videoIds.Count > existingVideoCount)
+                await ((ISyncManager)_audioSyncManager).DownloadNewSongsAsync(_videoIds);
         }
     }
 }
