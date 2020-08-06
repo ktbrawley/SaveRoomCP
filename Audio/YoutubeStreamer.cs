@@ -49,7 +49,7 @@ namespace SaveRoomCP.Audio
         private string FormatFileName(string fileName)
         {
             return fileName
-                .Replace("", "_")
+                .Replace(" ", "_")
                 .Replace("\"", "")
                 .Replace("(", "")
                 .Replace("`", "")

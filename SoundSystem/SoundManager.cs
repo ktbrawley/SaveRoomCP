@@ -82,7 +82,9 @@ namespace SaveRoomCP.SoundSystem
 
         private bool ReloadSongs()
         {
-            _saveRoomSongs = Directory.GetFiles(MUSIC_BASE_PATH, "*.wav").ToList();
+            _saveRoomSongs = Directory.EnumerateFiles(MUSIC_BASE_PATH, "*.*", SearchOption.AllDirectories)
+                .Where(f => f.EndsWith(".wav")).ToList();
+
             return _saveRoomSongs.Count > 0;
         }
 
