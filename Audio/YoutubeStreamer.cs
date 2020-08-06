@@ -24,66 +24,26 @@ namespace SaveRoomCP.Audio
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(this);  
+            GC.SuppressFinalize(this);
         }
 
-        public async Task<bool> SaveVideosAsWav(string outputDir, string playlistUrl)
+        public async Task<bool> SaveVideosAsWav(string outputDir, List<string> playlistVideoIds)
         {
-            var result = await CheckForNewSongsAsync(outputDir, playlistUrl);
-
-            if (result)
+            var videoUrl = $"https://www.youtube.com/watch?v=id";
+            var youtube = YouTube.Default;
+            foreach (var id in playlistVideoIds)
             {
-                Console.WriteLine($"Downloading new songs from playlist");
-                var fileNames = new List<string>();
-                foreach (var vid in _youtubeVideos)
+                var vid = await youtube.GetVideoAsync(videoUrl.Replace("id", id));
+                var videoFileName = $"{outputDir}/{vid.FullName}";
+                var newVidName = $"{outputDir}/{vid.FullName.Replace(" ", "_")}";
+                if (!File.Exists(newVidName))
                 {
-                    await ConvertVideoToWavAsync(vid, outputDir);
+                    Console.WriteLine($"Downloading {vid.FullName}...");
+                    File.WriteAllBytes($"{newVidName}", await vid.GetBytesAsync());
                 }
-                AudioConvertor.ConvertBatchToWav(outputDir);
-
-                return true;
             }
-            Console.WriteLine($"No new songs to download.");
-            return false;
-        }
-
-        public async Task SaveVideoAsWav(string outputDir, string videoUrl, string newFileName = "")
-        {
-            var youtube = YouTube.Default;
-            var vid = await youtube.GetVideoAsync(videoUrl);
-            var videoFileName = $"{outputDir}/{vid.FullName}";
-            var newVidName = string.IsNullOrEmpty(newFileName) ? $"{outputDir}/{vid.FullName.Substring(0, 5)}" : newFileName;
-
-            File.WriteAllBytes($"{newVidName}.mp4", await vid.GetBytesAsync());
-
-            ConvertVideoToWav(newVidName);
-
-            File.Delete($"{newVidName}.mp4");
-        }
-
-        public async Task<bool> CheckForNewSongsAsync(string outputDir, string playlistUrl)
-        {
-            int songCount = Directory.GetFiles(outputDir).Count();
-
-            var youtube = YouTube.Default;
-            var vids = await youtube.GetAllVideosAsync(playlistUrl);
-            _youtubeVideos = vids.ToList();
-
-            return (_youtubeVideos.Count() > songCount);
-        }
-
-        private void ConvertVideoToWav(string videoPath)
-        {
-            AudioConvertor.ConvertToWav(videoPath, "");
-        }
-
-        private async Task ConvertVideoToWavAsync(YouTubeVideo vid, string outputDir, string newFileName = "")
-        {
-            var videoFileName = $"{outputDir}/{vid.FullName}";
-            var newVidName = string.IsNullOrEmpty(newFileName) ? $"{outputDir}/{vid.FullName.Substring(0, 5)}" : newFileName;
-
-            File.WriteAllBytes($"{newVidName}.mp4", await vid.GetBytesAsync());
-            Console.WriteLine($"Downloading: {vid.FullName}");
+            AudioConvertor.ConvertBatchToWav(outputDir);
+            return true;
         }
     }
 }

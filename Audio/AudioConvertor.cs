@@ -28,14 +28,16 @@ namespace SaveRoomCP.Audio
 
         public static void ConvertBatchToWav(string outputDirPath)
         {
+            var cmd = $"cd {outputDirPath} && for file in *.mp4; do ffmpeg -i ${{file}} ${{file/%mp4/wav}}; done && rm -rf *.mp4; ";
+            var espacedArgs = cmd.Replace("\"", "\\\"");
+
             var process = new Process
             {
                 StartInfo = new ProcessStartInfo
                 {
                     FileName = "/bin/bash",
-                    Arguments = String.Format(@"-c 'cd {0} && for file in *.mp4; do ffmpeg -i ${file} ${file/%mp4/wav}; rm -rf *.mp4; done'", outputDirPath),
+                    Arguments = $"-c \"{espacedArgs}\"",
                     RedirectStandardOutput = true,
-                    RedirectStandardInput = true,
                     UseShellExecute = false,
                     CreateNoWindow = true
                 }

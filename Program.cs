@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -22,6 +23,8 @@ namespace SaveRoomCP
 
         private static readonly string playlistId = $"PLSL0-UtF7g_qN9j-1WZi2fSD3Tfprjifi";
 
+        private static readonly List<string> _videoIds = new List<string> { };
+
         private static async Task Main(string[] args)
         {
             try
@@ -30,7 +33,8 @@ namespace SaveRoomCP
                 LoadConfiguration();
                 await ExtractYoutubeVideoInfoFromPlaylist(playlistId);
 
-                // await _audioSyncManager.CheckNewSongsFromYouTubePlaylist(playlistUrl);
+                if (_videoIds.Count > 0)
+                    await ((ISyncManager)_audioSyncManager).DownloadNewSongsAsync(_videoIds);
 
                 // if (quitProgram)
                 // {
@@ -96,7 +100,8 @@ namespace SaveRoomCP
             foreach (var playlistItem in playlistItemsListResponse.Items)
             {
                 // Print information about each video.
-                Console.WriteLine("{0} ({1})", playlistItem.Snippet.Title, playlistItem.Snippet.ResourceId.VideoId);
+                // Console.WriteLine("{0} ({1})", playlistItem.Snippet.Title, playlistItem.Snippet.ResourceId.VideoId);
+                _videoIds.Add(playlistItem.Snippet.ResourceId.VideoId);
             }
         }
     }

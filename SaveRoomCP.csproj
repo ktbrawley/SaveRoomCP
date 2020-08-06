@@ -14,7 +14,7 @@
     <PackageReference Include="Google.Apis.YouTube.v3" Version="1.47.0.2008"/>
   </ItemGroup>
   <ItemGroup>
-    <None Update="SaveRoomMusic\**" CopyToOutputDirectory="PreserveNewest"/>
+    <!-- <None Update="SaveRoomMusic\**" CopyToOutputDirectory="PreserveNewest"/> -->
     <None Update="App_Config\**" CopyToOutputDirectory="PreserveNewest"/>
   </ItemGroup>
 </Project>
