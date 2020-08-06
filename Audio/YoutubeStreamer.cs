@@ -35,7 +35,7 @@ namespace SaveRoomCP.Audio
             {
                 var vid = await youtube.GetVideoAsync(videoUrl.Replace("id", id));
                 var videoFileName = $"{outputDir}/{vid.FullName}";
-                var newVidName = $"{outputDir}/{vid.FullName}";
+                var newVidName = $"{outputDir}/{FormatFileName(vid.FullName)}";
                 if (!File.Exists(newVidName))
                 {
                     Console.WriteLine($"Downloading {vid.FullName}...");
