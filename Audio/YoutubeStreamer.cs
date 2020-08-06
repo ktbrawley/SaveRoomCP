@@ -24,7 +24,7 @@ namespace SaveRoomCP.Audio
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(this);
+            GC.SuppressFinalize(this);  
         }
 
         public async Task<bool> SaveVideosAsWav(string outputDir, string playlistUrl)
@@ -34,10 +34,13 @@ namespace SaveRoomCP.Audio
             if (result)
             {
                 Console.WriteLine($"Downloading new songs from playlist");
+                var fileNames = new List<string>();
                 foreach (var vid in _youtubeVideos)
                 {
                     await ConvertVideoToWavAsync(vid, outputDir);
                 }
+                AudioConvertor.ConvertBatchToWav(outputDir);
+
                 return true;
             }
             Console.WriteLine($"No new songs to download.");
@@ -80,8 +83,7 @@ namespace SaveRoomCP.Audio
             var newVidName = string.IsNullOrEmpty(newFileName) ? $"{outputDir}/{vid.FullName.Substring(0, 5)}" : newFileName;
 
             File.WriteAllBytes($"{newVidName}.mp4", await vid.GetBytesAsync());
-            AudioConvertor.ConvertToWav(newVidName, "");
+            Console.WriteLine($"Downloading: {vid.FullName}");
         }
-
     }
 }

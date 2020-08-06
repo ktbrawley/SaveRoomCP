@@ -26,14 +26,14 @@ namespace SaveRoomCP.Audio
 
         }
 
-        public static void ConvertBatchToWav(string sourceFilePath, string outputDirPath)
+        public static void ConvertBatchToWav(string outputDirPath)
         {
             var process = new Process
             {
                 StartInfo = new ProcessStartInfo
                 {
                     FileName = "/bin/bash",
-                    Arguments = @"-c 'for file in *.mp4; do ffmpeg -i ${file} ${file/%mp4/wav}; rm -rf *.mp4; done'",
+                    Arguments = String.Format(@"-c 'cd {0} && for file in *.mp4; do ffmpeg -i ${file} ${file/%mp4/wav}; rm -rf *.mp4; done'", outputDirPath),
                     RedirectStandardOutput = true,
                     RedirectStandardInput = true,
                     UseShellExecute = false,
@@ -41,7 +41,6 @@ namespace SaveRoomCP.Audio
                 }
             };
             process.Start();
-
         }
     }
 }
