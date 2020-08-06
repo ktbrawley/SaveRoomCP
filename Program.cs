@@ -17,16 +17,9 @@ namespace SaveRoomCP
     {
         private static bool quitProgram = false;
         private static bool isFirstPass = true;
-        private static string _youtubeApiKey = String.Empty;
         private static SerialPortManager _serialPortManager = new SerialPortManager();
         private static SoundManager _soundManager = new SoundManager();
-        private static AudioSyncManager _audioSyncManager = new AudioSyncManager();
-
-        private static readonly string playlistId = $"PLSL0-UtF7g_qN9j-1WZi2fSD3Tfprjifi";
-
-        private static readonly List<string> _videoIds = new List<string> { };
-
-        private static readonly string MUSIC_BASE_PATH = $"{new DirectoryInfo(Assembly.GetExecutingAssembly().Location).Parent.FullName}/SaveRoomMusic";
+        private static readonly string playlistId = ConfigurationManager.GetConfigurationValue("PlaylistId");
 
         private static async Task Main(string[] args)
         {
@@ -39,7 +32,7 @@ namespace SaveRoomCP
                     return;
                 }
 
-                await CheckForNewSongs();
+                await _soundManager.CheckForNewSongs(playlistId);
 
                 while (!quitProgram)
                 {
@@ -71,55 +64,6 @@ namespace SaveRoomCP
             {
                 Console.WriteLine($"Error establishing communication with port: {ex.Message}");
             }
-        }
-
-        private static void LoadConfiguration()
-        {
-            IConfiguration configuration = new ConfigurationBuilder()
-            .AddJsonFile("./App_Config/appsettings.json", true, true)
-            .Build();
-            _youtubeApiKey = configuration.GetSection("YoutubeApiKey").Value;
-        }
-
-        private static async Task ExtractYoutubeVideoInfoFromPlaylist(string playlistId)
-        {
-            var youtubeService = new YouTubeService(new BaseClientService.Initializer()
-            {
-                ApiKey = _youtubeApiKey,
-                ApplicationName = "SaveRoomCP"
-            });
-
-            var playlistRequest = youtubeService.PlaylistItems.List("snippet");
-            playlistRequest.PlaylistId = playlistId;
-            playlistRequest.MaxResults = 20;
-
-            // Retrieve the list of videos uploaded to the authenticated user's channel.
-            var playlistItemsListResponse = await playlistRequest.ExecuteAsync();
-
-            foreach (var playlistItem in playlistItemsListResponse.Items)
-            {
-                // Print information about each video.
-                // Console.WriteLine("{0} ({1})", playlistItem.Snippet.Title, playlistItem.Snippet.ResourceId.VideoId);
-                _videoIds.Add(playlistItem.Snippet.ResourceId.VideoId);
-            }
-        }
-
-        private static async Task CheckForNewSongs()
-        {
-            LoadConfiguration();
-
-            await ExtractYoutubeVideoInfoFromPlaylist(playlistId);
-
-            if (!Directory.Exists(MUSIC_BASE_PATH))
-            {
-                Directory.CreateDirectory(MUSIC_BASE_PATH);
-            }
-
-            var existingVideoCount = Directory.EnumerateFiles(MUSIC_BASE_PATH, "*.*", SearchOption.AllDirectories)
-                .Where(f => f.EndsWith(".wav")).ToList().Count;
-
-            if (_videoIds.Count > 0 && _videoIds.Count > existingVideoCount)
-                await ((ISyncManager)_audioSyncManager).DownloadNewSongsAsync(_videoIds);
         }
     }
 }
