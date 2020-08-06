@@ -45,6 +45,8 @@ namespace SaveRoomCP.Audio
                 }
             };
             process.Start();
+            process.WaitForExit();
+            RemoveVideoFiles(outputDirPath);
         }
 
         public static void RemoveVideoFiles(string outputDirPath)
