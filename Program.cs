@@ -113,7 +113,7 @@ namespace SaveRoomCP
                 Directory.CreateDirectory(MUSIC_BASE_PATH);
             }
 
-            var existingVideoCount = Directory.GetFiles(MUSIC_BASE_PATH).Length;
+            var existingVideoCount = Directory.GetFiles(MUSIC_BASE_PATH, "*.wav").Length;
 
             if (_videoIds.Count > 0 && _videoIds.Count > existingVideoCount)
                 await ((ISyncManager)_audioSyncManager).DownloadNewSongsAsync(_videoIds);
