@@ -35,7 +35,7 @@ namespace SaveRoomCP.Audio
             {
                 var vid = await youtube.GetVideoAsync(videoUrl.Replace("id", id));
                 var videoFileName = $"{outputDir}/{vid.FullName}";
-                var newVidName = $"{outputDir}/{vid.FullName.Replace(" ", "_")}";
+                var newVidName = $"{outputDir}/{vid.FullName}";
                 if (!File.Exists(newVidName))
                 {
                     Console.WriteLine($"Downloading {vid.FullName}...");
@@ -44,6 +44,17 @@ namespace SaveRoomCP.Audio
             }
             AudioConvertor.ConvertBatchToWav(outputDir);
             return true;
+        }
+
+        private string FormatFileName(string fileName)
+        {
+            return fileName
+                .Replace("", "_")
+                .Replace("\"", "")
+                .Replace("(", "")
+                .Replace("`", "")
+                .Replace("'", "")
+                .Replace(")", "");
         }
     }
 }
