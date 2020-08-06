@@ -32,40 +32,40 @@ namespace SaveRoomCP
         {
             try
             {
-                // var serialPort = _serialPortManager.EstablishSerialPortCommunication(out quitProgram) ?? throw new Exception("No serial port available");
+                var serialPort = _serialPortManager.EstablishSerialPortCommunication(out quitProgram) ?? throw new Exception("No serial port available");
 
-                // if (quitProgram)
-                // {
-                //     return;
-                // }
+                if (quitProgram)
+                {
+                    return;
+                }
 
                 await CheckForNewSongs();
 
-                //     while (!quitProgram)
-                //     {
-                //         var isLightOn = _serialPortManager.IsTheLightOn(serialPort);
+                while (!quitProgram)
+                {
+                    var isLightOn = _serialPortManager.IsTheLightOn(serialPort);
 
-                //         if (isLightOn)
-                //         {
-                //             switch (isFirstPass)
-                //             {
-                //                 case true:
-                //                     var song = _soundManager.LoadSong();
-                //                     _soundManager.PlayMusic(song, out isFirstPass);
-                //                     break;
-                //                 case false:
-                //                     isFirstPass = _soundManager.CurrentProcess().HasExited;
-                //                     break;
-                //             }
-                //         }
-                //         else if (!isLightOn && !isFirstPass)
-                //         {
-                //             _soundManager.StopMusic(out isFirstPass);
-                //         }
-                //     }
-                //     _soundManager.StopMusic(out isFirstPass);
-                //     return;
-                // 
+                    if (isLightOn)
+                    {
+                        switch (isFirstPass)
+                        {
+                            case true:
+                                var song = _soundManager.LoadSong();
+                                _soundManager.PlayMusic(song, out isFirstPass);
+                                break;
+                            case false:
+                                isFirstPass = _soundManager.CurrentProcess().HasExited;
+                                break;
+                        }
+                    }
+                    else if (!isLightOn && !isFirstPass)
+                    {
+                        _soundManager.StopMusic(out isFirstPass);
+                    }
+                }
+                _soundManager.StopMusic(out isFirstPass);
+                return;
+
             }
             catch (Exception ex)
             {
