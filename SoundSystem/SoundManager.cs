@@ -6,27 +6,21 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using Google.Apis.Services;
-using Google.Apis.YouTube.v3;
 using Microsoft.Extensions.Configuration;
 using SaveRoomCP.Audio;
+using YT2AudioConverter;
 
 namespace SaveRoomCP.SoundSystem
 {
     public class SoundManager
     {
-        private readonly string MUSIC_BASE_PATH = $"{new DirectoryInfo(Assembly.GetExecutingAssembly().Location).Parent.FullName}/SaveRoomMusic";
+        private readonly string MUSIC_BASE_PATH = $"{new DirectoryInfo(Assembly.GetExecutingAssembly().Location).Parent.FullName}/Files";
         private IPlayer _player;
         private List<string> _saveRoomSongs = new List<string>();
         private List<string> _playedSongs = new List<string>();
+        private readonly IConfiguration _configuration;
 
-        private string _youtubeApiKey = String.Empty;
-        private readonly List<string> _videoIds = new List<string> { };
-
-        private readonly AudioSyncManager _audioSyncManager;
-
-
-        public SoundManager()
+        public SoundManager(IConfiguration configuration)
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
@@ -37,10 +31,10 @@ namespace SaveRoomCP.SoundSystem
                 _player = new LinuxMusicPlayer();
             }
 
-            _audioSyncManager = new AudioSyncManager();
-            _youtubeApiKey = ConfigurationManager.GetConfigurationValue("YoutubeApiKey");
-
+            _configuration = configuration;
         }
+
+        public bool IsPlaying => _player.IsPlaying;
 
         public Process CurrentProcess()
         {
@@ -49,8 +43,6 @@ namespace SaveRoomCP.SoundSystem
 
         public async Task CheckForNewSongs(string playlistId)
         {
-            await ExtractYoutubeVideoInfoFromPlaylist(playlistId);
-
             if (!Directory.Exists(MUSIC_BASE_PATH))
             {
                 Directory.CreateDirectory(MUSIC_BASE_PATH);
@@ -59,30 +51,16 @@ namespace SaveRoomCP.SoundSystem
             var existingVideoCount = Directory.EnumerateFiles(MUSIC_BASE_PATH, "*.*", SearchOption.AllDirectories)
                 .Where(f => f.EndsWith(".wav")).ToList().Count;
 
-            if (_videoIds.Count > 0 && _videoIds.Count > existingVideoCount)
-                await ((ISyncManager)_audioSyncManager).DownloadNewSongsAsync(_videoIds);
-        }
-
-        private async Task ExtractYoutubeVideoInfoFromPlaylist(string playlistId)
-        {
-            var youtubeService = new YouTubeService(new BaseClientService.Initializer()
+            if (existingVideoCount <= 0)
             {
-                ApiKey = _youtubeApiKey,
-                ApplicationName = "SaveRoomCP"
-            });
-
-            var playlistRequest = youtubeService.PlaylistItems.List("snippet");
-            playlistRequest.PlaylistId = playlistId;
-            playlistRequest.MaxResults = 20;
-
-            // Retrieve the list of videos uploaded to the authenticated user's channel.
-            var playlistItemsListResponse = await playlistRequest.ExecuteAsync();
-
-            foreach (var playlistItem in playlistItemsListResponse.Items)
-            {
-                // Print information about each video.
-                // Console.WriteLine("{0} ({1})", playlistItem.Snippet.Title, playlistItem.Snippet.ResourceId.VideoId);
-                _videoIds.Add(playlistItem.Snippet.ResourceId.VideoId);
+                using (var util = new YoutubeUtils(_configuration))
+                {
+                    await util.ConvertYoutubeUriToFile(new YT2AudioConverter.Models.YoutubeToFileRequest
+                    {
+                        TargetMediaType = "wav",
+                        Uri = _configuration.GetValue<string>("PlaylistUri")
+                    });
+                }
             }
         }
 
@@ -129,7 +107,6 @@ namespace SaveRoomCP.SoundSystem
             _playedSongs.Add(song);
             _saveRoomSongs.RemoveAt(songIndex);
         }
-
 
         private bool ReloadSongs()
         {

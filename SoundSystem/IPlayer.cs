@@ -7,8 +7,14 @@ namespace SaveRoomCP.SoundSystem
     public interface IPlayer
     {
         Task Play(string fileName);
+
         Task Stop();
 
         Process CurrentProcess { get; }
+
+        bool IsPlaying
+        {
+            get; set;
+        }
     }
 }

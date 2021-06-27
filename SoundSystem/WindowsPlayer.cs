@@ -3,15 +3,28 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
+using NAudio.Wave;
+using System.Threading;
+using NAudio.Wave.SampleProviders;
 
 namespace SaveRoomCP.SoundSystem
 {
     public class WindowsPlayer : IPlayer
     {
+        public bool IsPlaying { get; set; }
+
         public Process CurrentProcess => throw new NotImplementedException();
 
-        [DllImport("winmm.dll")]
-        private static extern long mciSendString(string command, StringBuilder stringReturn, int retunLength, IntPtr hwndCallback);
+        private readonly IWavePlayer outputDevice;
+        private readonly MixingSampleProvider mixer;
+
+        public WindowsPlayer()
+        {
+            outputDevice = new WaveOutEvent();
+            mixer = new MixingSampleProvider(WaveFormat.CreateIeeeFloatWaveFormat(sampleRate: 48000, channels: 2));
+            mixer.ReadFully = true;
+            outputDevice.Init(mixer);
+        }
 
         /// <summary>
         /// Starts music stream
@@ -24,11 +37,39 @@ namespace SaveRoomCP.SoundSystem
             fileName
             .Replace("/", @"\")
             .Replace(@"\\", @"\");
-            Console.WriteLine(escapedArgs);
-            ExecuteMsiCommand("close all");
-            ExecuteMsiCommand($"open {fileName} Alias player");
-            ExecuteMsiCommand($"play player from 0");
+
+            var input = new AudioFileReader(escapedArgs);
+
+            AddMixerInput(new AutoDisposeFileReader(input));
+
+            IsPlaying = true;
+
             return Task.CompletedTask;
+        }
+
+        private void AddMixerInput(ISampleProvider input)
+        {
+            outputDevice.Play();
+            mixer.AddMixerInput(ConvertToRightChannelCount(input));
+        }
+
+        private ISampleProvider ConvertToRightChannelCount(ISampleProvider input)
+        {
+            if (input.WaveFormat.Channels == mixer.WaveFormat.Channels)
+            {
+                return input;
+            }
+            if (input.WaveFormat.Channels == 1 && mixer.WaveFormat.Channels == 2)
+            {
+                return new MonoToStereoSampleProvider(input);
+            }
+            throw new NotImplementedException("Not yet implemented this channel count conversion");
+        }
+
+        public void Dispose()
+        {
+            outputDevice.Stop();
+            mixer.RemoveAllMixerInputs();
         }
 
         /// <summary>
@@ -37,21 +78,11 @@ namespace SaveRoomCP.SoundSystem
         /// <param name="isFirstPass"></param>
         public Task Stop()
         {
-            ExecuteMsiCommand($"Stop player");
+            Dispose();
             Console.WriteLine();
             Console.WriteLine("Stopping Music...");
             Console.WriteLine();
             return Task.CompletedTask;
-        }
-
-        private void ExecuteMsiCommand(string commandString)
-        {
-            var result = mciSendString(commandString, null, 0, IntPtr.Zero);
-
-            if (result != 0)
-            {
-                throw new Exception($"Error executing MSI command. Error code: {result}");
-            }
         }
     }
 }

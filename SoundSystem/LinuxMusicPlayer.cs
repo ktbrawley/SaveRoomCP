@@ -12,6 +12,8 @@ namespace SaveRoomCP.SoundSystem
         private Process _process;
         public Process CurrentProcess { get { return _process; } }
 
+        public bool IsPlaying { get; set; }
+
         public Task Play(string fileName)
         {
             _process = (StartAplayPlayback(fileName));

@@ -4,9 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using Google.Apis.Discovery;
-using Google.Apis.Services;
-using Google.Apis.YouTube.v3;
 using Microsoft.Extensions.Configuration;
 using SaveRoomCP.Audio;
 using SaveRoomCP.SoundSystem;
@@ -18,11 +15,15 @@ namespace SaveRoomCP
         private static bool quitProgram = false;
         private static bool isFirstPass = true;
         private static SerialPortManager _serialPortManager = new SerialPortManager();
-        private static SoundManager _soundManager = new SoundManager();
         private static readonly string playlistId = ConfigurationManager.GetConfigurationValue("PlaylistId");
 
         private static async Task Main(string[] args)
         {
+            IConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
+            configurationBuilder.AddJsonFile("App_Config/appsettings.json");
+            IConfiguration configuration = configurationBuilder.Build();
+
+            SoundManager _soundManager = new SoundManager(configuration);
             try
             {
                 var serialPort = _serialPortManager.EstablishSerialPortCommunication(out quitProgram) ?? throw new Exception("No serial port available");
@@ -46,8 +47,9 @@ namespace SaveRoomCP
                                 var song = _soundManager.LoadSong();
                                 _soundManager.PlayMusic(song, out isFirstPass);
                                 break;
+
                             case false:
-                                isFirstPass = _soundManager.CurrentProcess().HasExited;
+                                isFirstPass = !_soundManager.IsPlaying;
                                 break;
                         }
                     }
@@ -58,7 +60,6 @@ namespace SaveRoomCP
                 }
                 _soundManager.StopMusic(out isFirstPass);
                 return;
-
             }
             catch (Exception ex)
             {
