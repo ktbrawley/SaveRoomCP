@@ -9,7 +9,7 @@ namespace SaveRoomCP.SoundSystem
 {
     public class MusicPlayer : IPlayer
     {
-        public bool IsPlaying { get; set; }
+        public bool IsPlaying => (int)_outputDevice.PlaybackState == 1;
 
         public Process CurrentProcess => throw new NotImplementedException();
 
@@ -38,8 +38,6 @@ namespace SaveRoomCP.SoundSystem
             .Replace(@"\\", @"\");
 
             InitAudioPlayback(new AudioFileReader(escapedArgs));
-
-            IsPlaying = (int)_outputDevice.PlaybackState == 1;
 
             Console.WriteLine();
             Console.WriteLine("Playing Music...");
@@ -71,8 +69,6 @@ namespace SaveRoomCP.SoundSystem
 
         private void InitAudioPlayback(AudioFileReader newAudioSource)
         {
-            // Stop all playing / fade audio
-            _outputDevice.Stop();
             _fader = new FadeInOutSampleProvider(newAudioSource, true);
 
             // Prepare target sound device and play audio
@@ -89,6 +85,9 @@ namespace SaveRoomCP.SoundSystem
         public Task Stop()
         {
             _fader.BeginFadeOut(2000);
+            Thread.Sleep(2000);
+            // Stop all playing / fade audio
+            _outputDevice.Stop();
             Console.WriteLine();
             Console.WriteLine("Stopping Music...");
             Console.WriteLine();

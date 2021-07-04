@@ -22,13 +22,11 @@ namespace SaveRoomCP.SoundSystem
 
         public SoundManager(IConfiguration configuration)
         {
-
             _player = new MusicPlayer();
 
             _configuration = configuration;
         }
 
-        public bool IsPlaying => _player.IsPlaying;
         public async Task CheckForNewSongs(string playlistId)
         {
             if (!Directory.Exists(MUSIC_BASE_PATH))
@@ -123,6 +121,11 @@ namespace SaveRoomCP.SoundSystem
         {
             _player.Stop();
             isFirstPass = true;
+        }
+
+        public bool IsPlaying()
+        {
+            return _player.IsPlaying;
         }
     }
 }

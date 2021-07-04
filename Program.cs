@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
-using SaveRoomCP.Audio;
 using SaveRoomCP.SoundSystem;
 
 namespace SaveRoomCP
@@ -49,7 +44,7 @@ namespace SaveRoomCP
                                 break;
 
                             case false:
-                                isFirstPass = !_soundManager.IsPlaying;
+                                isFirstPass = !_soundManager.IsPlaying();
                                 break;
                         }
                     }

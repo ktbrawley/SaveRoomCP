@@ -12,7 +12,7 @@ namespace SaveRoomCP.SoundSystem
 
         bool IsPlaying
         {
-            get; set;
+            get;
         }
     }
 }
