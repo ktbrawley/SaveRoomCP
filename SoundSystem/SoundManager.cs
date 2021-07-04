@@ -22,25 +22,13 @@ namespace SaveRoomCP.SoundSystem
 
         public SoundManager(IConfiguration configuration)
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                _player = new WindowsPlayer();
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                _player = new LinuxMusicPlayer();
-            }
+
+            _player = new MusicPlayer();
 
             _configuration = configuration;
         }
 
         public bool IsPlaying => _player.IsPlaying;
-
-        public Process CurrentProcess()
-        {
-            return _player.CurrentProcess;
-        }
-
         public async Task CheckForNewSongs(string playlistId)
         {
             if (!Directory.Exists(MUSIC_BASE_PATH))

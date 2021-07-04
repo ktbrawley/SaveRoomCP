@@ -51,6 +51,7 @@ namespace SaveRoomCP
                 return serialPort;
             }
         }
+
         /// <summary>
         /// Filter the desired serial ports based on the Operating System in use
         /// </summary>

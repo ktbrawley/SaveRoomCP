@@ -10,8 +10,6 @@ namespace SaveRoomCP.SoundSystem
 
         Task Stop();
 
-        Process CurrentProcess { get; }
-
         bool IsPlaying
         {
             get; set;
