@@ -4,11 +4,14 @@ using System.Diagnostics;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using System.Threading;
+using System.IO;
+using System.Reflection;
 
 namespace SaveRoomCP.SoundSystem
 {
     public class MusicPlayer : IPlayer
     {
+        private readonly string MUSIC_BASE_PATH = $"{new DirectoryInfo(Assembly.GetExecutingAssembly().Location).Parent.FullName}/Files/RE Save Room Music/";
         public bool IsPlaying => (int)_outputDevice.PlaybackState == 1;
 
         public Process CurrentProcess => throw new NotImplementedException();
@@ -32,15 +35,18 @@ namespace SaveRoomCP.SoundSystem
         /// <param name="isFirstPass"></param>
         public Task Play(string fileName)
         {
-            var escapedArgs =
-            fileName
-            .Replace("/", @"\")
-            .Replace(@"\\", @"\");
+            var path = MUSIC_BASE_PATH
+                .Replace("/", @"\")
+                .Replace(@"\\", @"\");
+
+            var escapedArgs = fileName
+                .Replace("/", @"\")
+                .Replace(@"\\", @"\");
 
             InitAudioPlayback(new AudioFileReader(escapedArgs));
 
             Console.WriteLine();
-            Console.WriteLine("Playing Music...");
+            Console.WriteLine($"Now Playing: {escapedArgs.Replace(path, "")}");
             Console.WriteLine();
 
             return Task.CompletedTask;
