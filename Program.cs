@@ -9,7 +9,6 @@ namespace SaveRoomCP
     {
         private static bool quitProgram = false;
         private static bool isFirstPass = true;
-        private static SerialPortManager _serialPortManager = new SerialPortManager();
         private static readonly string playlistId = ConfigurationManager.GetConfigurationValue("PlaylistId");
 
         private static async Task Main(string[] args)
@@ -18,7 +17,9 @@ namespace SaveRoomCP
             configurationBuilder.AddJsonFile("App_Config/appsettings.json");
             IConfiguration configuration = configurationBuilder.Build();
 
-            SoundManager _soundManager = new SoundManager(configuration);
+            var _serialPortManager = new SerialPortManager(configuration);
+            var _soundManager = new SoundManager(configuration);
+
             try
             {
                 var serialPort = _serialPortManager.EstablishSerialPortCommunication(out quitProgram) ?? throw new Exception("No serial port available");
@@ -58,7 +59,11 @@ namespace SaveRoomCP
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error establishing communication with port: {ex.Message}");
+                Console.WriteLine($"{ex.Message}");
+            }
+            finally
+            {
+                Console.ReadKey();
             }
         }
     }

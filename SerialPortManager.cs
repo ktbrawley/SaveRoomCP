@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Configuration;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Ports;
@@ -12,8 +13,28 @@ namespace SaveRoomCP
 {
     public class SerialPortManager
     {
-        private static readonly int baudRate = 9600;
-        private static readonly int photoResitorThreshold = 200;
+        private readonly int _baudRate;
+        private readonly int _photoResitorThreshold;
+        private readonly string _arduinoSerialPort;
+
+        public SerialPortManager(IConfiguration config)
+        {
+            _baudRate = config.GetValue<int>("BaudRate");
+
+            if (_baudRate <= 0)
+            {
+                _baudRate = 9600;
+            }
+
+            _photoResitorThreshold = config.GetValue<int>("PlaySoundThreshold");
+
+            if (_photoResitorThreshold <= 0)
+            {
+                _photoResitorThreshold = 600;
+            }
+
+            _arduinoSerialPort = config.GetValue<string>("ArduinoSerialPort");
+        }
 
         /// <summary>
         /// Detect available serial ports and news up a connection to parse data
@@ -30,7 +51,7 @@ namespace SaveRoomCP
                 Console.WriteLine(port);
             }
 
-            if (targetPorts.Length < 1)
+            if (targetPorts.Length < 1 || !targetPorts.Any(x => x.Contains(_arduinoSerialPort)))
             {
                 quitProgram = true;
                 return null;
@@ -39,7 +60,8 @@ namespace SaveRoomCP
             {
                 // Create a new SerialPort on port COM? or /dev/ttyACM?
                 Console.WriteLine();
-                serialPort = new SerialPort(targetPorts[0], baudRate);
+                var arduinoPortIndex = Array.IndexOf(targetPorts, _arduinoSerialPort);
+                serialPort = new SerialPort(targetPorts[arduinoPortIndex], _baudRate);
 
                 serialPort.ReadTimeout = 1500;
                 serialPort.WriteTimeout = 1500;
@@ -61,7 +83,7 @@ namespace SaveRoomCP
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                targetPorts = ports.Where(p => !p.Contains("COM1")).ToArray();
+                targetPorts = ports.Where(p => p != "COM1").ToArray();
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
@@ -83,12 +105,12 @@ namespace SaveRoomCP
             Stream portStream = serialPort.BaseStream;
             portStream.Read(data, 0, data.Length);
             string dataString = Encoding.UTF8.GetString(data);
-            return dataString.Contains("Analog value:");
+            return dataString.ToLower().Contains("Analog value:".ToLower());
         }
 
         /// <summary>
-        /// Reaches analog input from photocell sensor to determine is light is being detected
-        /// If light is above expected threshold, return true
+        /// Reaches analog input from photocell sensor to determine is light is being detected If
+        /// light is above expected threshold, return true
         /// </summary>
         /// <param name="serialPort"></param>
         /// <returns>bool</returns>
@@ -108,7 +130,7 @@ namespace SaveRoomCP
                 int.TryParse(serialInput.Substring(13), out photoResistorVal);
             }
 
-            return photoResistorVal >= photoResitorThreshold;
+            return photoResistorVal >= _photoResitorThreshold;
         }
     }
 }
