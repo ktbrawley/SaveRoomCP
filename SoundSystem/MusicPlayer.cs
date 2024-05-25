@@ -48,8 +48,6 @@ namespace SaveRoomCP.SoundSystem
 
         private void AddMixerInput(ISampleProvider input)
         {
-            Console.WriteLine($"{_outputDevice.Volume}");
-
             _mixer.AddMixerInput(ConvertToRightChannelCount(input));
             _outputDevice.Play();
         }
@@ -84,13 +82,18 @@ namespace SaveRoomCP.SoundSystem
         /// <param name="isFirstPass"></param>
         public Task Stop()
         {
+            // Stop all playing / fade audio
             _fader.BeginFadeOut(2000);
             Thread.Sleep(2000);
-            // Stop all playing / fade audio
+
             _outputDevice.Stop();
+
             Console.WriteLine();
             Console.WriteLine("Stopping Music...");
             Console.WriteLine();
+
+            // Reset audio inputs in preparation for next track
+            _mixer.RemoveAllMixerInputs();
             return Task.CompletedTask;
         }
     }
