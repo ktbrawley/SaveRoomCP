@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using SaveRoomCP.Audio;
 using YT2AudioConverter;
+using Logger = NLog.Logger;
 
 namespace SaveRoomCP.SoundSystem
 {
@@ -19,12 +20,13 @@ namespace SaveRoomCP.SoundSystem
         private List<string> _saveRoomSongs = new List<string>();
         private List<string> _playedSongs = new List<string>();
         private readonly IConfiguration _configuration;
+        private static Logger _logger;
 
-        public SoundManager(IConfiguration configuration)
+        public SoundManager(IConfiguration configuration, Logger logger)
         {
-            _player = new MusicPlayer();
-
+            _player = new MusicPlayer(logger);
             _configuration = configuration;
+            _logger = logger;
         }
 
         public async Task CheckForNewSongs(string playlistId)
@@ -56,12 +58,12 @@ namespace SaveRoomCP.SoundSystem
 
             if (_saveRoomSongs.Count <= 0)
             {
-                Console.WriteLine("No songs to play");
+                _logger.Warn("No songs to play");
                 quitProgram = true;
             }
             else
             {
-                Console.WriteLine($"{_saveRoomSongs.Count} Save room songs found");
+                _logger.Info($"{_saveRoomSongs.Count} Save room songs found");
                 Console.WriteLine();
             }
             quitProgram = false;

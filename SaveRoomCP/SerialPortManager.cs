@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Logger = NLog.Logger;
 
 namespace SaveRoomCP
 {
@@ -16,8 +17,9 @@ namespace SaveRoomCP
         private readonly int _baudRate;
         private readonly int _photoResitorThreshold;
         private readonly string _arduinoSerialPort;
+        private readonly Logger _logger;
 
-        public SerialPortManager(IConfiguration config)
+        public SerialPortManager(IConfiguration config, Logger logger)
         {
             _baudRate = config.GetValue<int>("BaudRate");
 
@@ -34,6 +36,8 @@ namespace SaveRoomCP
             }
 
             _arduinoSerialPort = config.GetValue<string>("ArduinoSerialPort");
+
+            _logger = logger;
         }
 
         /// <summary>
@@ -45,10 +49,11 @@ namespace SaveRoomCP
             SerialPort serialPort = new SerialPort();
             string[] targetPorts = FilterPorts(SerialPort.GetPortNames());
 
-            Console.WriteLine("The following serial ports were found:");
+            _logger.Info("The following serial ports were found:");
+
             foreach (var port in targetPorts)
             {
-                Console.WriteLine(port);
+                _logger.Info(port);
             }
 
             if (targetPorts.Length < 1 || !targetPorts.Any(x => x.Contains(_arduinoSerialPort)))
@@ -120,7 +125,7 @@ namespace SaveRoomCP
 
             if (serialInput != string.Empty)
             {
-                Console.WriteLine(serialInput);
+                _logger.Debug(serialInput);
             }
 
             var photoResistorVal = 0;

@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using SaveRoomCP.SoundSystem;
+using Logger = NLog.Logger;
 
 namespace SaveRoomCP
 {
@@ -10,15 +11,17 @@ namespace SaveRoomCP
         private static bool quitProgram = false;
         private static bool isFirstPass = true;
         private static readonly string playlistId = ConfigurationManager.GetConfigurationValue("PlaylistId");
+        private static Logger _logger;
 
         private static async Task Main(string[] args)
         {
             IConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
             configurationBuilder.AddJsonFile("App_Config/appsettings.json");
             IConfiguration configuration = configurationBuilder.Build();
+            _logger = NLog.LogManager.GetCurrentClassLogger();
 
-            var _serialPortManager = new SerialPortManager(configuration);
-            var _soundManager = new SoundManager(configuration);
+            var _serialPortManager = new SerialPortManager(configuration, _logger);
+            var _soundManager = new SoundManager(configuration, _logger);
 
             try
             {
@@ -59,7 +62,7 @@ namespace SaveRoomCP
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"{ex.Message}");
+                _logger.Error($"{ex.Message}");
             }
             finally
             {

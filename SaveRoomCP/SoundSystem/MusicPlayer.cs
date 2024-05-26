@@ -6,6 +6,7 @@ using NAudio.Wave.SampleProviders;
 using System.Threading;
 using System.IO;
 using System.Reflection;
+using Logger = NLog.Logger;
 
 namespace SaveRoomCP.SoundSystem
 {
@@ -19,13 +20,15 @@ namespace SaveRoomCP.SoundSystem
         private readonly IWavePlayer _outputDevice;
         private readonly MixingSampleProvider _mixer;
         private FadeInOutSampleProvider _fader;
+        private static Logger _logger;
 
-        public MusicPlayer()
+        public MusicPlayer(Logger logger)
         {
             _outputDevice = new WaveOutEvent();
             _mixer = new MixingSampleProvider(WaveFormat.CreateIeeeFloatWaveFormat(sampleRate: 48000, channels: 2));
             _mixer.ReadFully = true;
             _outputDevice.Init(_mixer);
+            _logger = logger;
         }
 
         /// <summary>
@@ -46,7 +49,7 @@ namespace SaveRoomCP.SoundSystem
             InitAudioPlayback(new AudioFileReader(escapedArgs));
 
             Console.WriteLine();
-            Console.WriteLine($"Now Playing: {escapedArgs.Replace(path, "")}");
+            _logger.Info($"Now Playing: {escapedArgs.Replace(path, "")}");
             Console.WriteLine();
 
             return Task.CompletedTask;
@@ -95,7 +98,8 @@ namespace SaveRoomCP.SoundSystem
             _outputDevice.Stop();
 
             Console.WriteLine();
-            Console.WriteLine("Stopping Music...");
+            _logger.Info("Stopping Music...");
+
             Console.WriteLine();
 
             // Reset audio inputs in preparation for next track
