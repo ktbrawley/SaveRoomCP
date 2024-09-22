@@ -203,7 +203,7 @@ namespace YT2AudioConverter
                 _logger.Info(status);
 
                 await GetFileFromStreamManifest(streamManifest, newFileName, mediaType, outputDir);
-                Console.WriteLine($"{newFileName}downloaded");
+                Console.WriteLine($"{newFileName} - DOWNLOAD COMPLETE");
             }
         }
 

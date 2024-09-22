@@ -20,6 +20,7 @@ namespace SaveRoomCP
             IConfiguration configuration = configurationBuilder.Build();
             _logger = NLog.LogManager.GetCurrentClassLogger();
 
+            bool.TryParse(configuration["RandomizeSongs"], out bool shouldRandomize);
             var _serialPortManager = new SerialPortManager(configuration, _logger);
             var _soundManager = new SoundManager(configuration, _logger);
 
@@ -43,7 +44,7 @@ namespace SaveRoomCP
                         switch (isFirstPass)
                         {
                             case true:
-                                var song = _soundManager.LoadSong(randomize: false);
+                                var song = _soundManager.LoadSong(shouldRandomize);
                                 _soundManager.PlayMusic(song, out isFirstPass);
                                 break;
 
