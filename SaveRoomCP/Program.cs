@@ -43,7 +43,7 @@ namespace SaveRoomCP
                         switch (isFirstPass)
                         {
                             case true:
-                                var song = _soundManager.LoadSong();
+                                var song = _soundManager.LoadSong(randomize: false);
                                 _soundManager.PlayMusic(song, out isFirstPass);
                                 break;
 

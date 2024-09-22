@@ -3,7 +3,18 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net6.0-windows</TargetFramework>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+    <ApplicationIcon>save_room.ico</ApplicationIcon>
+    <PackageIcon>save_room.png</PackageIcon>
   </PropertyGroup>
+  <ItemGroup>
+    <Content Include="save_room.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\..\Users\kiera\Desktop\save_room.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="5.0.0" />

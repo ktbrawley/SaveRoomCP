@@ -16,8 +16,8 @@
     <PackageReference Include="NLog.Extensions.Logging" Version="1.6.5" />
     <PackageReference Include="NLog" Version="4.7.5" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.9" />
-    <PackageReference Include="YoutubeExplode" Version="6.3.16" />
-    <PackageReference Include="YoutubeExplode.Converter" Version="6.3.16" />
+    <PackageReference Include="YoutubeExplode" Version="6.4.1" />
+    <PackageReference Include="YoutubeExplode.Converter" Version="6.4.1" />
   </ItemGroup>
   <ItemGroup>
     <None Update="appsettings.json" CopyToOutputDirectory="PreserveNewest" />

@@ -69,19 +69,21 @@ namespace SaveRoomCP.SoundSystem
             quitProgram = false;
         }
 
-        private Tuple<string, int> SelectRandomSong()
+        private Tuple<string, int> SelectRandomSong(bool randomize = true)
         {
             if (_saveRoomSongs.Count == 0)
             {
                 ReloadSongs();
             }
-            var randomIndex = new Random((int)DateTime.Now.ToFileTime()).Next(0, (_saveRoomSongs.Count - 1));
-            return new Tuple<string, int>(_saveRoomSongs[randomIndex], randomIndex);
+            var increment = _playedSongs.Count() == 0 ? 0 : _playedSongs.Count();
+
+            var nextSongIndex = randomize ? new Random((int)DateTime.Now.ToFileTime()).Next(0, (_saveRoomSongs.Count - 1)) : increment;
+            return new Tuple<string, int>(_saveRoomSongs[nextSongIndex], nextSongIndex);
         }
 
-        public string LoadSong()
+        public string LoadSong(bool randomize = true)
         {
-            var tuple = SelectRandomSong();
+            var tuple = SelectRandomSong(randomize);
             var song = tuple.Item1;
             var songIndex = tuple.Item2;
 
@@ -99,9 +101,22 @@ namespace SaveRoomCP.SoundSystem
         private bool ReloadSongs()
         {
             _saveRoomSongs = Directory.EnumerateFiles(MUSIC_BASE_PATH, "*.*", SearchOption.AllDirectories)
-                .Where(f => f.EndsWith(".wav")).ToList();
+                .Where(f => f.EndsWith(".wav"))
+                .ToList();
 
             return _saveRoomSongs.Count > 0;
+        }
+
+        private static string formatFileNumberForSort(string inVal)
+        {
+            int o;
+            if (int.TryParse(Path.GetFileName(inVal), out o))
+            {
+                Console.WriteLine(string.Format("{0:0000000000}", o));
+                return string.Format("{0:0000000000}", o);
+            }
+            else
+                return inVal;
         }
 
         public bool PlayMusic(string song, out bool isFirstPass)

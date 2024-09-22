@@ -7,6 +7,7 @@ using System.Threading;
 using System.IO;
 using System.Reflection;
 using Logger = NLog.Logger;
+using NAudio.Mixer;
 
 namespace SaveRoomCP.SoundSystem
 {
@@ -22,10 +23,10 @@ namespace SaveRoomCP.SoundSystem
         private FadeInOutSampleProvider _fader;
         private static Logger _logger;
 
-        public MusicPlayer(Logger logger)
+        public MusicPlayer(Logger logger, int sampleRate = 44100, int channels = 2)
         {
             _outputDevice = new WaveOutEvent();
-            _mixer = new MixingSampleProvider(WaveFormat.CreateIeeeFloatWaveFormat(sampleRate: 48000, channels: 2));
+            _mixer = new MixingSampleProvider(WaveFormat.CreateIeeeFloatWaveFormat(sampleRate, channels));
             _mixer.ReadFully = true;
             _outputDevice.Init(_mixer);
             _logger = logger;
@@ -58,11 +59,12 @@ namespace SaveRoomCP.SoundSystem
         private void AddMixerInput(ISampleProvider input)
         {
             _mixer.AddMixerInput(ConvertToRightChannelCount(input));
-            _outputDevice.Play();
         }
 
         private ISampleProvider ConvertToRightChannelCount(ISampleProvider input)
         {
+            input = new WdlResamplingSampleProvider(input, _mixer.WaveFormat.SampleRate);
+
             if (input.WaveFormat.Channels == _mixer.WaveFormat.Channels)
             {
                 return input;
@@ -81,7 +83,7 @@ namespace SaveRoomCP.SoundSystem
             // Prepare target sound device and play audio
             _outputDevice.Init(_fader);
             AddMixerInput(new AutoDisposeFileReader(newAudioSource));
-
+            _outputDevice.Play();
             _fader.BeginFadeIn(2000);
         }
 
