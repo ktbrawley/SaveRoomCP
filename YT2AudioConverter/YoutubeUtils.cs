@@ -153,9 +153,14 @@ namespace YT2AudioConverter
                 Directory.CreateDirectory(playlistOutputDir);
             }
 
-            playlistVideos.AsParallel()
-                   .Select(video => RetrieveFile(video.Url, mediaType, playlistOutputDir).Result)
+            // Download them in parallel
+            var playListVideosArray = playlistVideos.ToArray();
+
+            playlistVideos
+                .AsParallel()
+                   .Select(video => RetrieveFile(video.Url, mediaType, playlistOutputDir, Array.IndexOf(playListVideosArray, video)).Result)
                    .ForAll(result => { if (result.Succeeded) videosConverted++; });
+
 
             response.Successed = true;
             response.VideoConverted = videosConverted;
@@ -163,13 +168,13 @@ namespace YT2AudioConverter
             return response;
         }
 
-        private async Task<ConvertResponse> RetrieveFile(string videoUrl, string mediaType, string outputDir = null)
+        private async Task<ConvertResponse> RetrieveFile(string videoUrl, string mediaType, string outputDir = null, int videoIndex = -1)
         {
             try
             {
                 outputDir = string.IsNullOrEmpty(outputDir) ? FILE_BASE_PATH : outputDir;
                 var metaData = await _youtube.Videos.GetAsync(videoUrl);
-                var newFileName = FormatFileName(metaData.Title);
+                var newFileName = (videoIndex >= 0) ? $"{videoIndex+1:00} - {FormatFileName(metaData.Title)}" : FormatFileName(metaData.Title);
                 var newFilePath = $"{outputDir}\\{newFileName}.{mediaType}";
 
                 ConvertResponse response = new ConvertResponse()

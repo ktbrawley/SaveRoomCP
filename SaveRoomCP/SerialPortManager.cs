@@ -109,7 +109,7 @@ namespace SaveRoomCP
             Thread.Sleep(500);
             byte[] data = new byte[serialPort.BytesToRead];
             Stream portStream = serialPort.BaseStream;
-            portStream.Read(data, 0, data.Length);
+            portStream.ReadExactly(data);
             string dataString = Encoding.UTF8.GetString(data);
             return dataString.ToLower().Contains("Analog value:".ToLower());
         }
