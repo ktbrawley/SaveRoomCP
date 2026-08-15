@@ -46,7 +46,7 @@ namespace SaveRoomCP.SoundSystem
                     await util.ConvertYoutubeUriToFile(new YT2AudioConverter.Models.YoutubeToFileRequest
                     {
                         TargetMediaType = "wav",
-                        Uri = _configuration.GetValue<string>("PlaylistUri")
+                        Uri = _configuration.GetSection("PlaylistUri").Value
                     });
                 }
             }

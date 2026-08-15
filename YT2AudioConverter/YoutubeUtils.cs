@@ -165,31 +165,44 @@ namespace YT2AudioConverter
 
         private async Task<ConvertResponse> RetrieveFile(string videoUrl, string mediaType, string outputDir = null)
         {
-            outputDir = string.IsNullOrEmpty(outputDir) ? FILE_BASE_PATH : outputDir;
-            var metaData = await _youtube.Videos.GetAsync(videoUrl);
-            var newFileName = FormatFileName(metaData.Title);
-            var newFilePath = $"{outputDir}\\{newFileName}.{mediaType}";
-
-            ConvertResponse response = new ConvertResponse()
+            try
             {
-                Succeeded = false,
-                Error = string.Empty,
-                Message = string.Empty
-            };
+                outputDir = string.IsNullOrEmpty(outputDir) ? FILE_BASE_PATH : outputDir;
+                var metaData = await _youtube.Videos.GetAsync(videoUrl);
+                var newFileName = FormatFileName(metaData.Title);
+                var newFilePath = $"{outputDir}\\{newFileName}.{mediaType}";
 
-            if (File.Exists(newFilePath))
-            {
-                var message = $"Download bypassed: {newFileName}.{mediaType} already exists.";
+                ConvertResponse response = new ConvertResponse()
+                {
+                    Succeeded = false,
+                    Error = string.Empty,
+                    Message = string.Empty
+                };
 
-                _logger.Warn(message);
-                response.Message = message;
+                if (File.Exists(newFilePath))
+                {
+                    var message = $"Download bypassed: {newFileName}.{mediaType} already exists.";
 
+                    _logger.Warn(message);
+                    response.Message = message;
+
+                    return response;
+                }
+
+                await DownloadFile(metaData, newFileName, mediaType, outputDir);
+                response.Succeeded = true;
                 return response;
             }
-
-            await DownloadFile(metaData, newFileName, mediaType, outputDir);
-            response.Succeeded = true;
-            return response;
+            catch (Exception)
+            {
+                return new ConvertResponse()
+                {
+                    Succeeded = false,
+                    Error = $"Unable to download file for specified link: {videoUrl}",
+                    Message = string.Empty
+                };
+            }
+          
         }
 
         private async Task DownloadFile(Video metaData, string newFileName, string mediaType, string outputDir)

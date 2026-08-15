@@ -21,21 +21,22 @@ namespace SaveRoomCP
 
         public SerialPortManager(IConfiguration config, Logger logger)
         {
-            _baudRate = config.GetValue<int>("BaudRate");
-
-            if (_baudRate <= 0)
+            // Read BaudRate as string and parse
+            var baudRateSection = config.GetSection("BaudRate").Value;
+            if (!int.TryParse(baudRateSection, out _baudRate) || _baudRate <= 0)
             {
                 _baudRate = 9600;
             }
 
-            _photoResitorThreshold = config.GetValue<int>("PlaySoundThreshold");
-
-            if (_photoResitorThreshold <= 0)
+            // Read PlaySoundThreshold as string and parse
+            var thresholdSection = config.GetSection("PlaySoundThreshold").Value;
+            if (!int.TryParse(thresholdSection, out _photoResitorThreshold) || _photoResitorThreshold <= 0)
             {
                 _photoResitorThreshold = 600;
             }
 
-            _arduinoSerialPort = config.GetValue<string>("ArduinoSerialPort");
+            // Read ArduinoSerialPort as string
+            _arduinoSerialPort = config.GetSection("ArduinoSerialPort").Value;
 
             _logger = logger;
         }
