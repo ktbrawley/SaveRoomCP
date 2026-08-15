@@ -75,7 +75,7 @@ namespace SaveRoomCP.SoundSystem
             {
                 ReloadSongs();
             }
-            var increment = _playedSongs.Count() == 0 ? 0 : _playedSongs.Count();
+            var increment = 0;
 
             var nextSongIndex = randomize ? new Random((int)DateTime.Now.ToFileTime()).Next(0, (_saveRoomSongs.Count - 1)) : increment;
             return new Tuple<string, int>(_saveRoomSongs[nextSongIndex], nextSongIndex);
